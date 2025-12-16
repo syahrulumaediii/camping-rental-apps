@@ -52,23 +52,23 @@ def test_login_sql_injection():
     assert username not in valid_users
 
 
-# def test_login_xss_attack():
-#     username = "<script>alert('XSS')</script>"
-#     password = "123"
-#     valid_users = {
-#         "admin": {"password": "admin123"}
-#     }
-#     assert username not in valid_users
+def test_login_xss_attack():
+    username = "<script>alert('XSS')</script>"
+    password = "123"
+    valid_users = {
+        "admin": {"password": "admin123"}
+    }
+    assert username not in valid_users
 
 
-# def test_login_response_time():
-#     start = time.time()
-#     username = "admin"
-#     password = "admin123"
-#     valid_users = {
-#         "admin": {"password": "admin123"}
-#     }
-#     result = valid_users.get(username, {}).get("password") == password
-#     end = time.time()
-#     assert result
-#     assert end - start < 2.0
+def test_login_response_time():
+    start = time.time()
+    username = "admin"
+    password = "admin123"
+    valid_users = {
+        "admin": {"password": "admin123"}
+    }
+    result = valid_users.get(username, {}).get("password") == password
+    end = time.time()
+    assert result
+    assert end - start < 2.0
