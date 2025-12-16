@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -20,7 +21,7 @@ jobs:
           extensions: mbstring, xml, ctype, json, pdo, pdo_mysql
 
       - name: Validate composer.json
-        run: composer validate --strict || echo "composer.json validation skipped"
+        run: composer validate --strict
         continue-on-error: true
 
       - name: Cache Composer packages
@@ -31,16 +32,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
+      # ⬇️ PENTING: JANGAN pakai --no-dev
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-dev
+        run: composer install --prefer-dist --no-progress
 
-      - name: Check PHP syntax errors
-        run: |
-          find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
+      - name: Run PHP syntax check (lint)
+        run: composer lint
 
-      - name: Run PHP linter (if configured)
-        run: composer lint || echo "No linter configured, skipping..."
-        continue-on-error: true
+      # ⬇️ UNIT TEST JALAN DI SINI
+      - name: Run Unit Tests
+        run: composer test
 
       - name: Success
-        run: echo "✅ PHP checks completed successfully!"
+        run: echo "✅ Lint & Unit Test completed successfully!"
