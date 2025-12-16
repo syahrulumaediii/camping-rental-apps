@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  php-check:
+  GitHub-Action-Check:
     runs-on: ubuntu-latest
 
     steps:
