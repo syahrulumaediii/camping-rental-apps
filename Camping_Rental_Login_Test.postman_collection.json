@@ -1,0 +1,644 @@
+{
+	"info": {
+		"_postman_id": "b11b2e20-51cf-4b0e-a203-c65dbe7c3960",
+		"name": "Camping Rental - Login System Testing",
+		"description": "Postman collection untuk testing Login System — hanya admin yang boleh masuk",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49777334",
+		"_collection_link": "https://syahrulumaediii-7638622.postman.co/workspace/Syahrul-Umaedi-Team's-Workspace~2823e176-8771-401b-868c-c63a57f492e4/collection/49777334-b11b2e20-51cf-4b0e-a203-c65dbe7c3960?action=share&source=collection_link&creator=49777334"
+	},
+	"item": [
+		{
+			"name": "1. FUNCTIONAL TESTS",
+			"item": [
+				{
+					"name": "TC-LOGIN-001: Valid Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 302\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+									"});",
+									"",
+									"pm.test(\"Response time < 2000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"if (pm.response.code === 302) {",
+									"    pm.test(\"Redirects to admin page\", function () {",
+									"        var loc = pm.response.headers.get(\"Location\");",
+									"        pm.expect(loc).to.match(/admin|dashboard/);",
+									"    });",
+									"} else {",
+									"    pm.test(\"Response contains admin content\", function () {",
+									"        var txt = pm.response.text();",
+									"        pm.expect(txt).to.match(/admin|dashboard|selamat datang/i);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						},
+						"description": "HANYA admin valid yang boleh masuk"
+					},
+					"response": []
+				},
+				{
+					"name": "TC-LOGIN-002: Valid User Login (Should FAIL)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 — no redirect\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No Location header\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Response contains login form\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.include(\"login.php\");",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});",
+									"",
+									"pm.test(\"Shows access denied or error\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/(gagal|salah|tidak diizinkan|access denied|login)/i);",
+									"});",
+									"",
+									"pm.test(\"NO admin or dashboard content\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.match(/dashboard|admin panel|selamat datang|user home/i);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "user1",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						},
+						"description": "User valid TIDAK boleh masuk — hanya admin!"
+					},
+					"response": []
+				},
+				{
+					"name": "TC-LOGIN-003: Invalid Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 — stays on login\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No redirect header\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Login form is present\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});",
+									"",
+									"pm.test(\"Error message shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/(salah|gagal|tidak valid)/i);",
+									"});",
+									"",
+									"pm.test(\"No dashboard content\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.match(/dashboard|admin|selamat datang/i);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "bro",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						},
+						"description": "Username salah"
+					},
+					"response": []
+				},
+				{
+					"name": "TC-LOGIN-004: Invalid Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No redirect\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Login form present\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});",
+									"",
+									"pm.test(\"Error message shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/(salah|gagal|password salah)/i);",
+									"});",
+									"",
+									"pm.test(\"No admin content\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.match(/dashboard|admin|selamat datang/i);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin1234",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TC-LOGIN-005: Empty Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No redirect\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Validation error shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/harus diisi|wajib|kosong/i);",
+									"});",
+									"",
+									"pm.test(\"Login form is still there\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TC-LOGIN-006: Empty Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No redirect\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Validation error shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/harus diisi|wajib|kosong/i);",
+									"});",
+									"",
+									"pm.test(\"Form still present\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TC-LOGIN-007: Both Fields Empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No redirect\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Validation errors shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/harus diisi|wajib/i);",
+									"});",
+									"",
+									"pm.test(\"Login form remains\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. SECURITY & EDGE CASES",
+			"item": [
+				{
+					"name": "TC-SEC-001: SQL Injection (Username)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 — no redirect\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No Location header\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Login form present\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});",
+									"",
+									"pm.test(\"Generic error, no DB leak\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/(salah|gagal)/i);",
+									"    pm.expect(txt).to.not.include(\"mysql\");",
+									"    pm.expect(txt).to.not.include(\"SQL syntax\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin' OR '1'='1",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "test123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TC-SEC-002: XSS Attempt",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 — no redirect\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Form still rendered\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});",
+									"",
+									"pm.test(\"XSS payload not executed\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.include(\"<script>\");",
+									"    // Boleh ada &lt;script&gt; (sanitized)",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "<script>alert('XSS')</script>",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "test123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TC-EDGE-001: Special Characters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 — handled gracefully\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"No redirect\", function () {",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"Login form remains\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match(/<form[^>]*action=[\"']?login\\.php/i);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin@#$%",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "test123",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/camping_rental",
+			"type": "string"
+		}
+	]
+}

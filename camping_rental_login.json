@@ -1,0 +1,796 @@
+{
+	"info": {
+		"name": "Camping Rental - Extended Login Tests",
+		"description": "Extended testing dengan 25+ test cases",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/camping_rental"
+    },
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    }
+  ],
+	"item": [
+		{
+			"name": "1. FUNCTIONAL TESTS",
+			"item": [
+				{
+					"name": "TC-LOGIN-001: Valid Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 302\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+									"});",
+									"",
+									"pm.test(\"Response time < 2000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"if (pm.response.code === 302) {",
+									"    pm.test(\"Redirects to admin page\", function () {",
+									"        var loc = pm.response.headers.get(\"Location\");",
+									"        pm.expect(loc).to.match(/admin|dashboard/);",
+									"    });",
+									"} else {",
+									"    pm.test(\"Response contains admin content\", function () {",
+									"        var txt = pm.response.text();",
+									"        pm.expect(txt).to.match(/admin|dashboard|selamat datang/i);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin"
+								},
+								{
+									"key": "password",
+									"value": "admin123"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-LOGIN-008: Case Sensitive Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 - no redirect\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Error message shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match('Invalid credentials');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "ADMIN"
+								},
+								{
+									"key": "password",
+									"value": "admin123"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-LOGIN-009: Whitespace in Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200 - login fails\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Error shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match('Invalid credentials');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": " admin "
+								},
+								{
+									"key": "password",
+									"value": "admin123"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-LOGIN-010: Very Long Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Handles long input gracefully\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+									"});",
+									"",
+									"pm.test(\"No server error\", function () {",
+									"    pm.expect(pm.response.code).to.not.equal(500);",
+									"});",
+                  "pm.test(\"Error shown\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.match('Invalid credentials');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+								},
+								{
+									"key": "password",
+									"value": "admin123"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. SECURITY TESTS - SQL Injection",
+			"item": [
+				{
+					"name": "TC-SQLI-001: Classic OR Bypass",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"SQL Injection BLOCKED\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"    pm.expect(pm.response.headers.has(\"Location\")).to.be.false;",
+									"});",
+									"",
+									"pm.test(\"No database error exposed\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.include(\"mysql\");",
+									"    pm.expect(txt).to.not.include(\"SQL syntax\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin' OR '1'='1"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-SQLI-002: OR 1=1 Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Blocked\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "' OR 1=1--"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-SQLI-003: UNION SELECT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Blocked\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "' UNION SELECT NULL, username, password FROM users--"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-SQLI-004: Password Field Injection",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Password injection blocked\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin"
+								},
+								{
+									"key": "password",
+									"value": "' OR '1'='1"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-SQLI-005: Boolean Blind",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Blocked\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin' AND '1'='1"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-SQLI-006: Stacked Queries",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Dangerous query blocked\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin'; DROP TABLE users--"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. XSS & INJECTION TESTS",
+			"item": [
+				{
+					"name": "TC-XSS-001: Script Tag",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"XSS blocked or sanitized\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.include(\"<script>alert\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "<script>alert('XSS')</script>"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-XSS-002: IMG Onerror",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"XSS blocked\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.match(/<img[^>]*onerror/i);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "<img src=x onerror=alert('XSS')>"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-XSS-003: Event Handler",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Event handler sanitized\", function () {",
+									"    var txt = pm.response.text();",
+									"    pm.expect(txt).to.not.include(\"onclick=alert\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "<div onclick=alert('XSS')>test</div>"
+								},
+								{
+									"key": "password",
+									"value": "test"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. PERFORMANCE TESTS",
+			"item": [
+				{
+					"name": "TC-PERF-001: Response Time",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time < 2000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Response time < 1000ms (optimal)\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"console.log(\"Response time: \" + pm.response.responseTime + \"ms\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin"
+								},
+								{
+									"key": "password",
+									"value": "admin123"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-PERF-002: Concurrent Requests (Run 10x)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Request successful\", function () {",
+									"    pm.response.to.be.success;",
+									"});",
+									"",
+									"pm.test(\"No timeout\", function () {",
+									"    pm.expect(pm.response.code).to.not.equal(408);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin"
+								},
+								{
+									"key": "password",
+									"value": "admin123"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login.php",
+							"host": ["{{base_url}}"],
+							"path": ["login.php"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. API ENDPOINT TESTS",
+			"item": [
+				{
+					"name": "TC-API-001: JSON Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is JSON\", function () {",
+									"    pm.response.to.be.json;",
+									"});",
+									"",
+									"var json = pm.response.json();",
+									"",
+									"pm.test(\"Login success\", function () {",
+									"    pm.expect(json.status).to.eql('success');",
+									"});",
+									"",
+									"pm.test(\"User is admin\", function () {",
+									"    pm.expect(json.data.user.role).to.eql('admin');",
+									"});",
+									"",
+									"pm.test(\"Response time tracked\", function () {",
+									"    pm.expect(json).to.have.property('response_time_ms');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api_login.php",
+							"host": ["{{base_url}}"],
+							"path": ["api_login.php"]
+						}
+					}
+				},
+				{
+					"name": "TC-API-002: JSON Invalid Credentials",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"wrong\",\"password\":\"wrong\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api_login.php"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.expect(pm.response.json().status).to.eql('error');"
+                ]
+              }
+            }
+          ]
+        },
+				{
+					"name": "TC-API-003: Get Items List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var json = pm.response.json();",
+									"",
+									"pm.test(\"Success status\", function () {",
+									"    pm.expect(json.status).to.eql('success');",
+									"});",
+									"",
+									"pm.test(\"Data is array\", function () {",
+									"    pm.expect(json.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Has items\", function () {",
+									"    pm.expect(json.data.length).to.be.above(0);",
+									"});",
+									"",
+									"pm.test(\"Item structure valid\", function () {",
+									"    var item = json.data[0];",
+									"    pm.expect(item).to.have.property('id');",
+									"    pm.expect(item).to.have.property('name');",
+									"    pm.expect(item).to.have.property('price_per_day');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/items.php?limit=5",
+							"host": ["{{base_url}}"],
+							"path": ["items.php"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

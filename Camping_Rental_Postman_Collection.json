@@ -1,0 +1,371 @@
+{
+  "info": {
+    "_postman_id": "33e9d640-fcd6-42f1-bb62-29ae92924a95",
+    "name": "Camping Rental API \u2013 CRUD + Security + Performance",
+    "description": "Full Postman Collection: Auth (JWT), CRUD Users, Security (SQLi, XSS, Brute Force), Rate Limit, Performance Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/camping_rental"
+    },
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth (JWT)",
+      "item": [
+        {
+          "name": "TC-AUTH-001 Login Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"admin\",\"password\":\"admin123\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api_login.php"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.expect(json.status).to.eql('success');",
+                  "pm.environment.set('jwt_token', json.data.session.session_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-AUTH-002 Login Invalid Credentials",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"wrong\",\"password\":\"wrong\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api_login.php"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.expect(pm.response.json().status).to.eql('error');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users CRUD",
+      "item": [
+        {
+          "name": "TC-CRUD-C-001 Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user_test_{{$timestamp}}\",\n  \"email\": \"user{{$timestamp}}@test.com\",\n  \"password\": \"secret123\",\n  \"role\": \"user\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_users.php",
+              "host": ["{{base_url}}"],
+              "path": ["api_users.php"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Create success\", function () {",
+                  "  pm.expect(json.status).to.eql('success');",
+                  "});",
+                  "",
+                  "// OPTIONAL: ambil ID terakhir",
+                  "if (json.data && json.data.id) {",
+                  "  pm.environment.set('user_id', json.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "TC-CRUD-R-001 Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_users.php",
+              "host": ["{{base_url}}"],
+              "path": ["api_users.php"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test(\"Data is array\", function () {",
+                  "  pm.expect(json.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "TC-CRUD-U-001 Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"updated{{$timestamp}}@test.com\",\n  \"full_name\": \"Updated User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_users.php?id={{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api_users.php"],
+              "query": [
+                { "key": "id", "value": "{{user_id}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Update success\", function () {",
+                  "  pm.expect(pm.response.json().status).to.eql('success');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "TC-CRUD-D-001 Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api_users.php?id={{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api_users.php"],
+              "query": [
+                { "key": "id", "value": "{{user_id}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Delete success\", function () {",
+                  "  pm.expect(pm.response.json().status).to.eql('success');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Security Tests",
+      "item": [
+        {
+          "name": "TC-SEC-001 SQL Injection Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"' OR 1=1 --\",\"password\":\"test\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api_login.php"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-SEC-002 XSS Payload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"<script>alert(1)</script>\",\"password\":\"x\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api_login.php"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rate Limit & Brute Force",
+      "item": [
+        {
+          "name": "TC-RATE-001 Brute Force Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"admin\",\"password\":\"wrong\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api_login.php",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api_login.php"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Blocked after many attempts', function () {",
+                  "  pm.expect([401,429]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

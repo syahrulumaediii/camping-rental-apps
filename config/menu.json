@@ -1,0 +1,60 @@
+{
+  "admin": [
+    {
+      "title": "Dashboard",
+      "icon": "bi-speedometer2",
+      "url": "/admin/index.php",
+      "active": "dashboard"
+    },
+    {
+      "title": "Items",
+      "icon": "bi-box-seam",
+      "url": "/admin/items.php",
+      "active": "items"
+    },
+    {
+      "title": "Bookings",
+      "icon": "bi-calendar-check",
+      "url": "/admin/bookings.php",
+      "active": "bookings"
+    },
+    {
+      "title": "Payments",
+      "icon": "bi-credit-card",
+      "url": "/admin/payments.php",
+      "active": "payments"
+    },
+    {
+      "title": "Users",
+      "icon": "bi-people",
+      "url": "/admin/users.php",
+      "active": "users"
+    },
+    {
+      "title": "Reports",
+      "icon": "bi-graph-up",
+      "url": "/admin/reports.php",
+      "active": "reports"
+    }
+  ],
+  "user": [
+    {
+      "title": "Catalog",
+      "icon": "bi-grid",
+      "url": "/index.php",
+      "active": "catalog"
+    },
+    {
+      "title": "My Bookings",
+      "icon": "bi-bag-check",
+      "url": "/views/booking/status.php",
+      "active": "my-bookings"
+    },
+    {
+      "title": "Profile",
+      "icon": "bi-person",
+      "url": "/views/profile.php",
+      "active": "profile"
+    }
+  ]
+}
