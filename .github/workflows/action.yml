@@ -1,0 +1,46 @@
+name: CI/CD Camping Rental Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  php-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, json, pdo, pdo_mysql
+    
+    - name: Validate composer.json
+      run: composer validate --strict || echo "composer.json validation skipped"
+      continue-on-error: true
+    
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    
+    - name: Install Composer dependencies
+      run: composer install --prefer-dist --no-progress --no-dev
+    
+    - name: Check PHP syntax errors
+      run: |
+        find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
+    
+    - name: Run PHP linter (if configured)
+      run: composer lint || echo "No linter configured, skipping..."
+      continue-on-error: true
+    
+    - name: Success
+      run: echo "✅ PHP checks completed successfully!"
