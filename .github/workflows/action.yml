@@ -45,6 +45,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest requests selenium
+          pip install pytest requests webdriver-manager
 
       - name: Run pytest
         run: pytest test_py/
