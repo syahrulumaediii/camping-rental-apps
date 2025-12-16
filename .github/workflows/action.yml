@@ -7,41 +7,41 @@ on:
     branches: [main]
 
 jobs:
-  GitHub-Action-Check:
+  PhpCheck_and_PythonTesting:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
+      # ---------- PHP SETUP ----------
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.3"
-          extensions: mbstring, xml, ctype, json, pdo, pdo_mysql
+          extensions: mbstring, xml, ctype, json, mysqli
 
-      - name: Validate composer.json
-        run: composer validate --strict
-        continue-on-error: true
-
-      - name: Cache Composer packages
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      # ⬇️ PENTING: JANGAN pakai --no-dev
-      - name: Install Composer dependencies
+      - name: Install PHP dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Run PHP syntax check (lint)
+      - name: Run PHP lint
         run: composer lint
 
-      # ⬇️ UNIT TEST JALAN DI SINI
-      - name: Run Unit Tests
-        run: composer test
+      # ---------- START API ----------
+      - name: Start PHP API server
+        run: |
+          php -S 127.0.0.1:8000 -t api > api.log 2>&1 &
+          sleep 3
 
-      - name: Success
-        run: echo "✅ Lint & Unit Test completed successfully!"
+      # ---------- PYTHON SETUP ----------
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest requests
+
+      - name: Run API tests with pytest
+        run: pytest test_py/
