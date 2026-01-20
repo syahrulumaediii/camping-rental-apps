@@ -24,20 +24,20 @@ class PaymentController
 
         if (!$booking) {
             setFlashMessage('danger', 'Booking not found');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Check if user owns the booking
         if ($booking['user_id'] != $user['id']) {
             setFlashMessage('danger', 'Unauthorized access');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Check if payment already exists
         $existingPayment = $this->paymentModel->getByBookingId($bookingId);
         if ($existingPayment && $existingPayment['status'] === 'completed') {
             setFlashMessage('info', 'Payment already completed');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         return [
@@ -51,7 +51,7 @@ class PaymentController
         Auth::requireLogin();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('/camping_rental/index.php');
+            redirect('/camping-rental-apps/index.php');
         }
 
         $user = Auth::user();
@@ -68,13 +68,13 @@ class PaymentController
 
         if (!$booking) {
             setFlashMessage('danger', 'Booking not found');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Check if user owns the booking
         if ($booking['user_id'] != $user['id']) {
             setFlashMessage('danger', 'Unauthorized access');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Check if payment already exists
@@ -104,7 +104,7 @@ class PaymentController
 
         if ($paymentId) {
             setFlashMessage('success', 'Payment submitted successfully. Please complete the payment.');
-            redirect("/camping_rental/views/payment/success.php?payment_id=$paymentId");
+            redirect("/camping-rental-apps/views/payment/success.php?payment_id=$paymentId");
         } else {
             setFlashMessage('danger', 'Failed to process payment');
             redirect($_SERVER['HTTP_REFERER']);
@@ -120,7 +120,7 @@ class PaymentController
             setFlashMessage('danger', 'Failed to confirm payment');
         }
 
-        // ✅ BENAR: Gunakan APP_URL + path relatif — jangan hardcode /camping_rental/...
+        // ✅ BENAR: Gunakan APP_URL + path relatif — jangan hardcode /camping-rental-apps/...
         redirect(APP_URL . '/admin/payments.php');
     }
 
@@ -146,13 +146,13 @@ class PaymentController
 
         if (!$payment) {
             setFlashMessage('danger', 'Payment not found');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Check if user owns the payment or is admin
         if ($payment['user_id'] != $user['id'] && !Auth::isAdmin()) {
             setFlashMessage('danger', 'Unauthorized access');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         return $payment;

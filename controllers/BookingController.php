@@ -21,7 +21,7 @@ class BookingController
         Auth::requireLogin();
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('/camping_rental/index.php');
+            redirect('/camping-rental-apps/index.php');
         }
 
         $user = Auth::user();
@@ -34,7 +34,7 @@ class BookingController
         // Validation
         if (!$itemId || !$startDate || !$endDate || $quantity < 1) {
             setFlashMessage('danger', 'Please fill all required fields');
-            redirect($_SERVER['HTTP_REFERER'] ?? '/camping_rental/index.php');
+            redirect($_SERVER['HTTP_REFERER'] ?? '/camping-rental-apps/index.php');
         }
 
         // Validate dates
@@ -52,7 +52,7 @@ class BookingController
         $item = $this->itemModel->getById($itemId);
         if (!$item) {
             setFlashMessage('danger', 'Item not found');
-            redirect('/camping_rental/index.php');
+            redirect('/camping-rental-apps/index.php');
         }
 
         // Check availability
@@ -75,7 +75,7 @@ class BookingController
 
         if ($bookingId) {
             setFlashMessage('success', 'Booking created successfully');
-            redirect("/camping_rental/views/payment/checkout.php?booking_id=$bookingId");
+            redirect("/camping-rental-apps/views/payment/checkout.php?booking_id=$bookingId");
         } else {
             setFlashMessage('danger', 'Failed to create booking');
             redirect($_SERVER['HTTP_REFERER']);
@@ -108,13 +108,13 @@ class BookingController
 
         if (!$booking) {
             setFlashMessage('danger', 'Booking not found');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Check if user owns the booking or is admin
         if ($booking['user_id'] != $user['id'] && !Auth::isAdmin()) {
             setFlashMessage('danger', 'Unauthorized access');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         return $booking;
@@ -129,13 +129,13 @@ class BookingController
 
         if (!$booking) {
             setFlashMessage('danger', 'Booking not found');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Check if user owns the booking
         if ($booking['user_id'] != $user['id'] && !Auth::isAdmin()) {
             setFlashMessage('danger', 'Unauthorized access');
-            redirect('/camping_rental/views/booking/status.php');
+            redirect('/camping-rental-apps/views/booking/status.php');
         }
 
         // Cancel booking
@@ -145,7 +145,7 @@ class BookingController
             setFlashMessage('danger', 'Failed to cancel booking. Only pending or confirmed bookings can be cancelled.');
         }
 
-        redirect('/camping_rental/views/booking/status.php');
+        redirect('/camping-rental-apps/views/booking/status.php');
     }
 
     public function updateStatus($id, $status)
@@ -156,7 +156,7 @@ class BookingController
 
         if (!in_array($status, $validStatuses)) {
             setFlashMessage('danger', 'Invalid status');
-            redirect($_SERVER['HTTP_REFERER'] ?? '/camping_rental/admin/bookings.php');
+            redirect($_SERVER['HTTP_REFERER'] ?? '/camping-rental-apps/admin/bookings.php');
         }
 
         if ($this->bookingModel->updateStatus($id, $status)) {
@@ -165,6 +165,6 @@ class BookingController
             setFlashMessage('danger', 'Failed to update booking status');
         }
 
-        redirect($_SERVER['HTTP_REFERER'] ?? '/camping_rental/admin/bookings.php');
+        redirect($_SERVER['HTTP_REFERER'] ?? '/camping-rental-apps/admin/bookings.php');
     }
 }

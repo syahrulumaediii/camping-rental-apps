@@ -35,9 +35,10 @@ include __DIR__ . '/../topnav.php';
                     <h5 class="mb-3">Booking Details</h5>
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <?php if (!empty($data['image_url'])): ?>
-                                <img src="<?= APP_URL . '/' . htmlspecialchars($data['image_url']) ?>"
-                                    class="img-fluid rounded shadow" alt="<?= htmlspecialchars($data['item_name']) ?>"
+                            <?php if (!empty($data['booking']['image_url'])): ?>
+                                <img src="<?= APP_URL . '/' . htmlspecialchars($data['booking']['image_url']) ?>"
+                                    class="img-fluid rounded shadow"
+                                    alt="<?= htmlspecialchars($data['booking']['item_name']) ?>"
                                     style="height: 100px; object-fit: cover;">
                             <?php else: ?>
                                 <div class="bg-secondary rounded d-flex align-items-center justify-content-center"
